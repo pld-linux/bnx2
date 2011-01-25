@@ -12,15 +12,16 @@
 %define		pname	bnx2
 Summary:	Broadcom NetXtreme II Gigabit ethernet driver
 Name:		%{pname}%{_alt_kernel}
-Version:	1.9.20b
+Version:	2.0.8e
 Release:	0.1
 License:	GPL
 Group:		Base
-# from http://www-947.ibm.com/systems/support/supportsite.wss/docdisplay?lndocid=MIGR-5081938&brandind=5000020
-# download: brcm_dd_nic_netxtreme2-1.9.20b_1.50.13_sles11_32-64.tgz
-Source0:	netxtreme2-5.0.17.tar.gz
-# Source0-md5:	ef4561b8fac71126da0bfa12255c34c2
+# from https://www-947.ibm.com/support/entry/portal/docdisplay?brand=5000020&lndocid=MIGR-5081938
+# download: brcm_dd_nic_netxtreme2-*.tgz
+Source0:	ftp://download2.boulder.ibm.com/ecc/sar/CMA/XSA/brcm_dd_nic_netxtreme2-%{version}_1.52.16_sles11_32-64.tgz
+# Source0-md5:	29b93ae8c6ba423687b1268285a7befb
 %{?with_dist_kernel:BuildRequires:	kernel%{_alt_kernel}-module-build >= 3:2.6.27}
+BuildRequires:	rpm-utils
 BuildRequires:	rpmbuild(macros) >= 1.379
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -46,13 +47,14 @@ driver for the Broadcom NetXtreme II BCM5706/BCM5708/5709/5716
 10/100/1000/2500/10000 Mbps PCIX/PCIE Ethernet Network Controller.
 
 %prep
-%setup -q -c
+%setup -qc
+rpm2cpio sles11/noarch/update/SUSE-SLES/11/sources/brcm-netxtreme2-sles11-*.src.rpm | cpio -dimu
+%{__tar} -zxf netxtreme2-*.tar.gz
 mv netxtreme2-*/* .
-mv bnx2/{README.TXT,RELEASE.TXT} .
 
 %build
 %build_kernel_modules -m bnx2 -C bnx2/src \
-	EXTRA_CFLAGS="-DHAVE_IP_HDR -DHAVE_LE32 -DNEW_SKB"
+	EXTRA_CFLAGS="-DHAVE_IP_HDR -DHAVE_LE32 -DNEW_SKB -DHAVE_BOOL"
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -69,5 +71,5 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n kernel%{_alt_kernel}-net-bnx2
 %defattr(644,root,root,755)
-%doc README.TXT RELEASE.TXT INSTALL.TXT
+%doc bnx2/{README.TXT,RELEASE.TXT,ChangeLog}
 /lib/modules/%{_kernel_ver}/kernel/net/*.ko*
