@@ -8,12 +8,12 @@
 # nothing to be placed to debuginfo package
 %define		_enable_debug_packages	0
 
-%define		rel	0.1
+%define		rel	1
 %define		pname	bnx2
 Summary:	Broadcom NetXtreme II Gigabit ethernet driver
 Name:		%{pname}%{_alt_kernel}
 Version:	2.0.8e
-Release:	0.1
+Release:	%{rel}
 License:	GPL
 Group:		Base
 # from https://www-947.ibm.com/support/entry/portal/docdisplay?brand=5000020&lndocid=MIGR-5081938
@@ -58,7 +58,7 @@ mv netxtreme2-*/* .
 
 %install
 rm -rf $RPM_BUILD_ROOT
-%install_kernel_modules -m bnx2/src/bnx2 -d kernel/net
+%install_kernel_modules -m bnx2/src/bnx2 -d kernel/net -n %{pname} -s current
 
 %post	-n kernel%{_alt_kernel}-net-bnx2
 %depmod %{_kernel_ver}
@@ -72,4 +72,5 @@ rm -rf $RPM_BUILD_ROOT
 %files -n kernel%{_alt_kernel}-net-bnx2
 %defattr(644,root,root,755)
 %doc bnx2/{README.TXT,RELEASE.TXT,ChangeLog}
+%config(noreplace) %verify(not md5 mtime size) /etc/modprobe.d/%{_kernel_ver}/bnx2.conf
 /lib/modules/%{_kernel_ver}/kernel/net/*.ko*
